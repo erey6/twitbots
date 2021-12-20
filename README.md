@@ -1,7 +1,7 @@
 # twitbots
 
 These are two Twitter bots that simulate game calls by White Sox and Chicago Cubs announcers.
-The program utilizes the mlbgame package, which is a Python API that retrieves and read MLB GameDay data. As cited in its docs, "mlbgame uses the same data that MLB GameDay uses, and therefore is updated as soon as something happens in a game."
+The program utilizes the mlbgame package, which is a Python API that retrieves and reads MLB GameDay data. As cited in its docs, "mlbgame uses the same data that MLB GameDay uses, and therefore is updated as soon as something happens in a game."
 
 ## Harry Caray bot
 
