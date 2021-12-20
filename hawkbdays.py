@@ -66,7 +66,7 @@ for i in sox_roster.players:
     age = currentYear - int(b_year)
     if int(b_date) == currentDay and int(b_month) == currentMonth:
         closing = random.choice(["D.J. and I wish you the best.", "Yesssssss!"])
-        my_status = "{} {} turns {} today. Happy birthday, {}! {}\n\n#WhiteSox".format(i.name_first, i.name_last, age, i.name_first, closing)
+        my_status = "{} {} turns {} today. Happy birthday, {}! {}\n\n#WhiteSox".format(i.name_use, i.name_last, age, i.name_use, closing)
         api.update_status(status=my_status)
 
 
