@@ -79,6 +79,7 @@ def retweet_news(a, b, c, d, retweet_link):
 while(True):
     today_game = mlbgame.day(currentYear, currentMonth,
                              currentDay, home="White Sox", away="White Sox")
+    print(today_game)
     if today_game == []:
         break
     stats = today_game[0]
