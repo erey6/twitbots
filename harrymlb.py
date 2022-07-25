@@ -2,7 +2,9 @@
 # 8/30 3pm
 from __future__ import print_function
 import traceback
+from xml.dom.expatbuilder import FragmentBuilderNS
 import mlbgame
+import mlbapi
 import random
 import tweepy
 import twitter_credentials
@@ -97,42 +99,54 @@ def flip_it(oppo_pitcher, oppo_roster, oppo_team):
 
 
 while(True):
+    today_date = f"{currentMonth}/{currentDay}/{currentYear}"
     today_game = mlbgame.day(currentYear, currentMonth,
                              currentDay, home="Cubs", away="Cubs")
-    if today_game == []:
+    team_schedule = mlbapi.schedule(date = today_date, team_id = 112)
+    if team_schedule.total_games == 0:
         break
-    stats = today_game[0]
-    rosters = mlbgame.players(stats.game_id)
-    if stats.away_team == "Cubs":
-        oppo_team = stats.home_team
-        oppo_roster = rosters.home_players
+    # stats = today_game[0]
+    # rosters = mlbgame.players(stats.game_id)
+
+    game_status = team_schedule.dates[0].games[0].status.detailed_state
+    game_pk = team_schedule.dates[0].games[0].game_pk
+    home_team = team_schedule.dates[0].games[0].teams.home.team.name 
+    away_team = team_schedule.dates[0].games[0].teams.away.team.name 
+    if home_team == "Chicago Cubs":
+        home_game = True
     else:
-        oppo_team = stats.away_team
-        oppo_roster = rosters.away_players
+        home_game = False
 
-    if stats.game_status == "FINAL":
-
+    if game_status == "Final":
+        get_play_by_play= mlbapi.get_play_by_play(game_pk)
+        most_recent_play = get_play_by_play["allPlays"][-1]
+        result = most_recent_play["result"]
+        boxscore = mlbapi.boxscore(game_pk)
         people = ["", "", " and Wayne Larrivee", " and Arnie Harris", " and Thom Brennaman", " and Lou Boudreau",
                   " and Milo Hamilton"]
         pick = random.choice(people)
         sayings = "This is Harry Caray with Steve Stone" + pick
-        if stats.away_team == "Cubs":
-            cubs_runs = stats.away_team_runs
-            cubs_hits = stats.away_team_hits
-            cubs_errors = stats.away_team_errors
-            oppo_runs = stats.home_team_runs
-            oppo_hits = stats.home_team_hits
-            oppo_errors = stats.home_team_errors
-            oppo_team = stats.home_team
+        if home_game == False:
+            cubs_runs = result["awayScore"]
+            cubs_hits = boxscore.teams.away.team_stats.batting.hits
+            cubs_errors = boxscore.teams.away.team_stats.fielding.errors
+            oppo_runs = result["homeScore"]
+            oppo_hits = boxscore.teams.home.team_stats.batting.hits
+            oppo_errors = boxscore.teams.home.team_stats.fielding.errors
+            oppo_team = home_team
 
         else:
-            cubs_runs = stats.home_team_runs
-            cubs_hits = stats.home_team_hits
-            cubs_errors = stats.home_team_errors
-            oppo_runs = stats.away_team_runs
-            oppo_hits = stats.away_team_hits
-            oppo_errors = stats.away_team_errors
-            oppo_team = stats.away_team
+            cubs_runs = result["homeScore"]
+            cubs_hits = boxscore.teams.home.team_stats.batting.hits
+            cubs_errors = boxscore.teams.home.team_stats.fielding.errors
+            oppo_runs = result["awayScore"]
+            oppo_hits = boxscore.teams.away.team_stats.batting.hits
+            oppo_errors = boxscore.teams.away.team_stats.fielding.errors
+            oppo_team = away_team
+        if cubs_runs > oppo_runs:
+            cubs_win = True
+        else: cubs_win = False 
+            
         cub_h = "hits"
         cub_r = "runs"
         cub_e = "errors"
@@ -151,7 +165,7 @@ while(True):
             oppo_h = "hit"
         if oppo_errors == 1:
             oppo_e = "error"
-        if stats.w_team == "Cubs":
+        if cubs_win:
             openers = ["#Cubs win! Cubs win!",
                        "#Cubs win! The good Lord loves the Cubs!", "Holy cow!"]
             opener = random.choice(openers)
@@ -161,13 +175,9 @@ while(True):
                        "A tough loss today." "It's a tough loss."]
             opener = random.choice(openers)
 
-        my_status = """{} The final: The Cubs {} and the {} {}. Your totals:\nFor the Cubs. {} {}, {} {} and {} {}.\nFor the {}, {} {}, {} {} and {} {}. \n{}. Goodnight, everybody. \n#Cubs #CubTogether""".format(opener, cubs_runs, oppo_team, oppo_runs, cubs_runs, cub_r, cubs_hits, cub_h,
-                                                                                                                                                                                                                    cubs_errors, cub_e,
-                                                                                                                                                                                                                    oppo_team, oppo_runs, oppo_r, oppo_hits,
-                                                                                                                                                                                                                    oppo_h, oppo_errors, oppo_e,
-                                                                                                                                                                                                                    sayings)
+        my_status = f"{opener} The final: The Cubs {cubs_runs} and the {oppo_team} {oppo_runs}. Your totals:\nFor the Cubs. {cubs_runs} {cub_r}, {cubs_hits} {cub_h} and {cubs_errors} {cub_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}. Goodnight, everybody. \n#Cubs #CubTogether"
         print(my_status)
-        api.update_status(status=my_status)
+        # api.update_status(status=my_status)
         time.sleep(90)
         # print(my_status)
 
