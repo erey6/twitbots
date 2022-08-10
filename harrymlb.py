@@ -48,8 +48,8 @@ def get_play_description(most_recent_play, atbat_string):
     
     except:
         # no description
-        print(most_recent_play["result"])
-        print('no desc')
+        # print(most_recent_play["result"])
+        # print('no desc')
         time.sleep(15)
 
 def harry_news(a, b, c, d):
@@ -64,7 +64,7 @@ def harry_news(a, b, c, d):
                     str(tweet.id)
                 retweet_news(a, b, c, d, retweet_link)
         except tweepy.TweepError as e:
-            print(e.reason)
+            # print(e.reason)
             f = open('log.txt', 'a')
             f.write('An exceptional thing happened - {}'.format(e))
             f.close()
@@ -85,7 +85,7 @@ def retweet_news(a, b, c, d, retweet_link):
         a, b, c, d)
     my_status = game_score + pick
     api.update_status(status=my_status)
-    print(my_status)
+    # print(my_status)
 
 
 @run_once
@@ -111,7 +111,7 @@ def flip_it(oppo_team):
         pick = pick + closer
         my_status = pick
         api.update_status(status=my_status)
-        print(my_status)
+        # print(my_status)
         #print("flipit works")
 
 
@@ -205,11 +205,11 @@ while(True):
             if home_game == False and this_half == "top":
                 atbat_string = get_play_description(most_recent_play, atbat_string)
                 # atbat_string = most_recent_play["result"]["description"] 
-                print(atbat_string)
+                # print(atbat_string)
 
             elif home_game == True and this_half == "bottom":
                 atbat_string = get_play_description(most_recent_play, atbat_string)
-                print(atbat_string)
+                # print(atbat_string)
 
                 # atbat_string = most_recent_play["result"]["description"] 
 
@@ -220,7 +220,6 @@ while(True):
                 time.sleep(12)
 
             if atbat_string and happened != atbat_string:
-                print(atbat_string)
                 if "homer" in atbat_string:
                     homer_calls = ["There it goes! Way back! It might be! It could be! It is! \n",
                                    "There it goes! Way back...\n", "Swung on. Way back! It might be...\n"]
@@ -231,7 +230,7 @@ while(True):
                         closer = "#Cubs"
                     my_status = homer_call + atbat_string + closer
                     api.update_status(status=my_status)
-                    print(my_status)
+                    # print(my_status)
                     happened = atbat_string
                     time.sleep(51)
 
@@ -245,7 +244,7 @@ while(True):
                         closer = "\n#Cubs @Cubs"
                     my_status = homer_call + atbat_string + closer
                     api.update_status(status=my_status)
-                    print(my_status)
+                    # print(my_status)
                     happened = atbat_string
                     time.sleep(51)
 
