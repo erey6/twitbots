@@ -3,7 +3,6 @@
 from __future__ import print_function
 import traceback
 from xml.dom.expatbuilder import FragmentBuilderNS
-# import mlbgame
 import mlbapi
 import random
 import tweepy
@@ -85,7 +84,7 @@ def retweet_news(a, b, c, d, retweet_link):
     game_score = """The Cubs are getting ready to bat here in the fourth. The score is the {} {} and the {} {}.\n""".format(
         a, b, c, d)
     my_status = game_score + pick
-    # api.update_status(status=my_status)
+    api.update_status(status=my_status)
     print(my_status)
 
 
@@ -111,7 +110,7 @@ def flip_it(oppo_team):
         closer = random.choice(closers)
         pick = pick + closer
         my_status = pick
-        # api.update_status(status=my_status)
+        api.update_status(status=my_status)
         print(my_status)
         #print("flipit works")
 
@@ -186,12 +185,12 @@ while(True):
 
         else:
             openers = ["That's it for today.",
-                       "A tough loss today." "It's a tough loss."]
+                       "A tough loss today.", "It's a tough loss."]
             opener = random.choice(openers)
 
-        my_status = f"{opener} The final: The Cubs {cubs_runs} and the {oppo_team} {oppo_runs}. Your totals:\nFor the Cubs. {cubs_runs} {cub_r}, {cubs_hits} {cub_h} and {cubs_errors} {cub_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}. Goodnight, everybody. \n#Cubs #CubTogether"
+        my_status = f"{opener} The final: The Cubs {cubs_runs} and the {oppo_team} {oppo_runs}. Your totals:\nFor the Cubs. {cubs_runs} {cub_r}, {cubs_hits} {cub_h} and {cubs_errors} {cub_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}. Goodnight, everybody. \n#Cubs"
         print(my_status)
-        # api.update_status(status=my_status)
+        api.update_status(status=my_status)
         time.sleep(90)
         print(my_status)
 
@@ -206,15 +205,19 @@ while(True):
             if home_game == False and this_half == "top":
                 atbat_string = get_play_description(most_recent_play, atbat_string)
                 # atbat_string = most_recent_play["result"]["description"] 
+                print(atbat_string)
 
             elif home_game == True and this_half == "bottom":
                 atbat_string = get_play_description(most_recent_play, atbat_string)
+                print(atbat_string)
+
                 # atbat_string = most_recent_play["result"]["description"] 
 
             else:
                 atbat_string = happened
+                print(atbat_string)
+
                 time.sleep(12)
-                # print(atbat.b,atbat.s,atbat.o,atbat.away_team_runs,atbat.home_team_runs)
 
             if atbat_string and happened != atbat_string:
                 print(atbat_string)
@@ -228,7 +231,7 @@ while(True):
                         closer = "#Cubs"
                     my_status = homer_call + atbat_string + closer
                     api.update_status(status=my_status)
-                    # print(my_status)
+                    print(my_status)
                     happened = atbat_string
                     time.sleep(51)
 
@@ -241,7 +244,7 @@ while(True):
                     else:
                         closer = "\n#Cubs @Cubs"
                     my_status = homer_call + atbat_string + closer
-                    # api.update_status(status=my_status)
+                    api.update_status(status=my_status)
                     print(my_status)
                     happened = atbat_string
                     time.sleep(51)
