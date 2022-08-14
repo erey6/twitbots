@@ -106,9 +106,9 @@ while(True):
         result = most_recent_play["result"]
         boxscore = mlbapi.boxscore(game_pk)
         people = ["", "", " and Tom Paciorek",
-                  " and 'Wimpy'", " and DJ", " and Darrin Jackson"]
+                  " and 'Wimpy'", " and DJ"]
         pick = random.choice(people)
-        sayings = "This is Hawk Harrelson with Steve Stone" + pick
+        sayings = "This is Hawk Harrelson with Stoney" + pick
         if home_game == False:
             sox_runs = result["awayScore"]
             sox_hits = boxscore.teams.away.team_stats.batting.hits
@@ -148,16 +148,16 @@ while(True):
         if oppo_errors == 1:
             oppo_e = "error"
         if sox_win:
-            openers = ["#WhiteSox win!", "This game is ovah!", "This game is ovah! Sox win!",
-                       "#WhiteSox win! Hell yes!", "Good guys win!", "South Siders win!"]
+            openers = ["#WhiteSox win!", "This game is ovah!", "Sox win!",
+                       "Sox win! Hell yes!"]
             opener = random.choice(openers)
 
         else:
             openers = ["(30 seconds of silence)",
-                       "Tough day for the Sox.", "White Sox lose today.", "South Siders lose."]
+                       "Sox lose today."]
             opener = random.choice(openers)
 
-        my_status = """{opner} The score: The #WhiteSox {sox_runs} and the {oppo_team} {oppo_runs}. Here are your totals:\nFor the Sox. {sox_runs} {sox_r}, {sox_hits} {sox_h} and {sox_errors} {sox_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}. Goodnight."""
+        my_status = """{opner} The score: The #WhiteSox {sox_runs} and the {oppo_team} {oppo_runs}. Your totals:\nFor the Sox. {sox_runs} {sox_r}, {sox_hits} {sox_h} and {sox_errors} {sox_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}. Goodnight."""
         # print(my_status)
         api.update_status(status=my_status)
         time.sleep(90)
