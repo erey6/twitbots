@@ -217,7 +217,7 @@ while(True):
                 atbat_string = happened
                 print(atbat_string)
 
-                time.sleep(12)
+                time.sleep(9)
 
             if atbat_string and happened != atbat_string:
                 if "homer" in atbat_string:

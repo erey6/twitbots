@@ -2,11 +2,13 @@
 
 from __future__ import print_function
 import traceback
-import mlbgame
+from xml.dom.expatbuilder import FragmentBuilderNS
+import mlbapi
 import random
 import tweepy
 import hk_twitter_credentials
 import time
+import requests
 from datetime import datetime
 from pytz import timezone
 
@@ -37,9 +39,16 @@ def run_once(f):
     wrapper.has_run = False
     return wrapper
 
-# @run_once
-# def relief(cubs_runs, oppo_runs):
-#    pass
+def get_play_description(most_recent_play, atbat_string):
+    try:
+        if most_recent_play["result"]["description"] == atbat_string:
+                time.sleep(21)
+        else:
+            play = most_recent_play["result"]["description"]
+            return play
+    
+    except:
+        time.sleep(15)
 
 
 def harry_news(a, b, c, d):
@@ -77,45 +86,49 @@ def retweet_news(a, b, c, d, retweet_link):
 
 
 while(True):
-    today_game = mlbgame.day(currentYear, currentMonth,
-                             currentDay, home="White Sox", away="White Sox")
-    print(today_game)
-    if today_game == []:
+    today_date = f"{currentMonth}/{currentDay}/{currentYear}"
+    team_schedule = mlbapi.schedule(date = today_date, team_id = 145)
+    if team_schedule.total_games == 0:
         break
-    stats = today_game[0]
-    rosters = mlbgame.players(stats.game_id)
+    game_status = team_schedule.dates[0].games[0].status.detailed_state
+    game_pk = team_schedule.dates[0].games[0].game_pk
+    home_team = team_schedule.dates[0].games[0].teams.home.team.name 
+    away_team = team_schedule.dates[0].games[0].teams.away.team.name 
 
-    if stats.away_team == "White Sox":
-        oppo_team = stats.home_team
-        oppo_roster = rosters.home_players
-
+    if home_team == "Chicago White Sox":
+        home_game = True
     else:
-        oppo_team = stats.away_team
-        oppo_roster = rosters.away_players
+        home_game = False
 
-    if stats.game_status == "FINAL":
-
+    if game_status == "Game Over" or game_status == "Final":
+        get_play_by_play= mlbapi.get_play_by_play(game_pk)
+        most_recent_play = get_play_by_play["allPlays"][-1]
+        result = most_recent_play["result"]
+        boxscore = mlbapi.boxscore(game_pk)
         people = ["", "", " and Tom Paciorek",
                   " and 'Wimpy'", " and DJ", " and Darrin Jackson"]
         pick = random.choice(people)
         sayings = "This is Hawk Harrelson with Steve Stone" + pick
-        if stats.away_team == "White Sox":
-            sox_runs = stats.away_team_runs
-            sox_hits = stats.away_team_hits
-            sox_errors = stats.away_team_errors
-            oppo_runs = stats.home_team_runs
-            oppo_hits = stats.home_team_hits
-            oppo_errors = stats.home_team_errors
-            oppo_team = stats.home_team
+        if home_game == False:
+            sox_runs = result["awayScore"]
+            sox_hits = boxscore.teams.away.team_stats.batting.hits
+            sox_errors = boxscore.teams.away.team_stats.fielding.errors
+            oppo_runs = result["homeScore"]
+            oppo_hits = boxscore.teams.home.team_stats.batting.hits
+            oppo_errors = boxscore.teams.home.team_stats.fielding.errors
+            oppo_team = home_team
 
         else:
-            sox_runs = stats.home_team_runs
-            sox_hits = stats.home_team_hits
-            sox_errors = stats.home_team_errors
-            oppo_runs = stats.away_team_runs
-            oppo_hits = stats.away_team_hits
-            oppo_errors = stats.away_team_errors
-            oppo_team = stats.away_team
+            sox_runs = result["homeScore"]
+            sox_hits = boxscore.teams.home.team_stats.batting.hits
+            sox_errors = boxscore.teams.home.team_stats.fielding.errors
+            oppo_runs = result["awayScore"]
+            oppo_hits = boxscore.teams.away.team_stats.batting.hits
+            oppo_errors = boxscore.teams.away.team_stats.fielding.errors
+            oppo_team = away_team
+        if sox_runs > oppo_runs:
+            sox_win = True
+        else: sox_win = False 
         sox_h = "hits"
         sox_r = "runs"
         sox_e = "errors"
@@ -134,7 +147,7 @@ while(True):
             oppo_h = "hit"
         if oppo_errors == 1:
             oppo_e = "error"
-        if stats.w_team == "White Sox":
+        if sox_win:
             openers = ["#WhiteSox win!", "This game is ovah!", "This game is ovah! Sox win!",
                        "#WhiteSox win! Hell yes!", "Good guys win!", "South Siders win!"]
             opener = random.choice(openers)
@@ -144,92 +157,73 @@ while(True):
                        "Tough day for the Sox.", "White Sox lose today.", "South Siders lose."]
             opener = random.choice(openers)
 
-        my_status = """{} The score: The #WhiteSox {} and the {} {}. Here are your totals:\nFor the Sox. {} {}, {} {} and {} {}.\nFor the {}, {} {}, {} {} and {} {}. \n{}. Goodnight. \n#ChangeTheGame""".format(opener, sox_runs, oppo_team, oppo_runs, sox_runs, sox_r, sox_hits, sox_h,
-                                                                                                                                                                                                                  sox_errors, sox_e,
-                                                                                                                                                                                                                  oppo_team, oppo_runs, oppo_r, oppo_hits,
-                                                                                                                                                                                                                  oppo_h, oppo_errors, oppo_e,
-                                                                                                                                                                                                                  sayings)
+        my_status = """{opner} The score: The #WhiteSox {sox_runs} and the {oppo_team} {oppo_runs}. Here are your totals:\nFor the Sox. {sox_runs} {sox_r}, {sox_hits} {sox_h} and {sox_errors} {sox_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}. Goodnight."""
         # print(my_status)
         api.update_status(status=my_status)
         time.sleep(90)
 
         break
 
-    elif stats.game_status == "IN_PROGRESS":
+    elif game_status == "In Progress":
         try:
-            events = mlbgame.game_events(stats.game_id)
-            this_inning = len(events)
-            for event in events:
-                if(event.num == this_inning):
-                    break
+            get_play_by_play= mlbapi.get_play_by_play(game_pk)
+            most_recent_play = get_play_by_play["allPlays"][-1]
+            this_half = most_recent_play["about"]["halfInning"]
+            this_inning = most_recent_play["about"]["inning"]
+            if home_game == False and this_half == "top":
+                atbat_string = get_play_description(most_recent_play, atbat_string)
+                # atbat_string = most_recent_play["result"]["description"] 
+                # print(atbat_string)
 
-            if(len(event.bottom) == 0):
-                this_half = "top"
-                this_atbat = event.top[-1]
+            elif home_game == True and this_half == "bottom":
+                atbat_string = get_play_description(most_recent_play, atbat_string)
+                # print(atbat_string)
 
-            else:
-                this_half = "bottom"
-                this_atbat = event.bottom[-1]
+                # atbat_string = most_recent_play["result"]["description"] 
+            elif home_game == True and this_half == "top":
+                defense_string = get_play_description(most_recent_play, atbat_string)
 
-            atbat = this_atbat
-
-            # if(not atbat):
-            #    atbat_string = "Changing Innings"
-            # when sox are at bat
-            if stats.away_team == "White Sox" and this_half == "top":
-                atbat_string = atbat.nice_output()
-
-            elif stats.home_team == "White Sox" and this_half == "bottom":
-                atbat_string = atbat.nice_output()
-
-            # when sox are on field
-            elif stats.home_team == "White Sox" and this_half == "top":
-                defense_string = atbat.nice_output()
-
-            elif stats.away_team == "White Sox" and this_half == "bottom":
-                defense_string = atbat.nice_output()
+            elif home_game == False and this_half == "bottom":
+                defense_string =get_play_description(most_recent_play, atbat_string)
 
             else:
                 atbat_string = happened
-                defense_string = happened
-                time.sleep(6)
-                # print(atbat.b,atbat.s,atbat.o,atbat.away_team_runs,atbat.home_team_runs)
-
-            if happened != atbat_string:
-                print("here")
-                print(happened)
                 print(atbat_string)
+
+                time.sleep(9)
+
+            if atbat_string and happened != atbat_string:
                 if "homer" in atbat_string:
                     homer_calls = ["Hit hard! He looks up! You can put it on the boaaard! Yes! \n",
                                    "That ball hit deep! You can put in on the board! Yes!!\n", "Stretch! That ball is gone! Mercy!\n"]
                     homer_call = random.choice(homer_calls)
-                    if stats.home_team == "White Sox":
-                        closer = "\nThe home crowd loves it!\n\n#ChangeTheGame #WhiteSox"
+                    if home_game == True:
+                        closer = "\nThe home crowd loves it!\n#WhiteSox"
                     else:
-                        closer = "\n#ChangeTheGame #WhiteSox"
+                        closer = "\n#WhiteSox"
                     my_status = homer_call + atbat_string + closer
                     api.update_status(status=my_status)
                     happened = atbat_string
-                    time.sleep(60)
+                    time.sleep(51)
 
                 elif "grand" in atbat_string:
                     homer_calls = ["You can put it on the boooooard! Yes! Grand slam! \n",
                                    "Hit hard! Stretch! Grand slam! MERCY!!!...\n"]
                     homer_call = random.choice(homer_calls)
-                    if stats.home_team == "White Sox":
-                        closer = "\nComiskey is going wild!\n\n#ChangeTheGame #WhiteSox @WhiteSox"
+                    if home_game == True:
+                        closer = "\nComiskey is going wild!\n#WhiteSox @WhiteSox"
                     else:
-                        closer = "\n#ChangeTheGame #WhiteSox @WhiteSox"
+                        closer = "\n#WhiteSox @WhiteSox"
                     my_status = homer_call + atbat_string + closer
                     api.update_status(status=my_status)
                     # print(my_status)
                     happened = atbat_string
-                    time.sleep(60)
+                    time.sleep(51)
 
                 elif "flies out" in atbat_string and "sharply" not in atbat_string:
                     the_calls = ["\nCan of corn.\n"]
                     my_status = atbat_string + "\nCan of corn.\n"
-                    will_it_run = random.randint(0, 240)
+                    will_it_run = random.randint(0, 246)
                     if will_it_run < 6:
                         api.update_status(status=my_status)
                         # print(my_status)
@@ -245,34 +239,34 @@ while(True):
 
                 else:
                     happened = atbat_string
-                    if this_inning == 4 and stats.away_team == "White Sox" and this_half == "top":
-                        harry_news(stats.home_team, stats.home_team_runs,
-                                   stats.away_team, stats.away_team_runs)
-                    if this_inning == 4 and stats.home_team == "White Sox" and this_half == "bottom":
-                        harry_news(stats.home_team, stats.home_team_runs,
-                                   stats.away_team, stats.away_team_runs)
+                    # if this_inning == 4 and stats.away_team == "White Sox" and this_half == "top":
+                    #     harry_news(stats.home_team, stats.home_team_runs,
+                    #                stats.away_team, stats.away_team_runs)
+                    # if this_inning == 4 and stats.home_team == "White Sox" and this_half == "bottom":
+                    #     harry_news(stats.home_team, stats.home_team_runs,
+                    #                stats.away_team, stats.away_team_runs)
 
                 if happened != defense_string:
                     if "strikes out" in defense_string:
-                        closer = "\n#ChangeTheGame #WhiteSox #HeGone"
+                        closer = "\n#WhiteSox"
                         my_status = "HE GONE! \n" + defense_string + closer
                         will_it_run = random.randint(0, 100)
                         if will_it_run < 50:
                             api.update_status(status=my_status)
 
                         happened = defense_string
-                        time.sleep(60)
+                        time.sleep(51)
 
                     if "walks" in defense_string:
-                        closer = "\n#ChangeTheGame #WhiteSox #umpirestrikesback"
+                        closer = "\n#WhiteSox #umpirestrikesback"
                         my_status = "Where was that? \n" + defense_string + closer
                         will_it_run = random.randint(0, 100)
-                        if will_it_run < 50:
+                        if will_it_run < 36:
                             api.update_status(status=my_status)
                             api.update_status(status=my_status)
 
                         happened = defense_string
-                        time.sleep(60)
+                        time.sleep(51)
 
         except Exception as e:
             q = (str(datetime.now()))
