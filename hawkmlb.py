@@ -101,68 +101,76 @@ while(True):
         home_game = False
 
     if game_status == "Game Over" or game_status == "Final":
-        get_play_by_play= mlbapi.get_play_by_play(game_pk)
-        most_recent_play = get_play_by_play["allPlays"][-1]
-        result = most_recent_play["result"]
-        boxscore = mlbapi.boxscore(game_pk)
-        people = ["", "", " and Tom Paciorek",
-                  " and 'Wimpy'", " and DJ"]
-        pick = random.choice(people)
-        sayings = "This is Hawk Harrelson with Stoney" + pick
-        if home_game == False:
-            sox_runs = result["awayScore"]
-            sox_hits = boxscore.teams.away.team_stats.batting.hits
-            sox_errors = boxscore.teams.away.team_stats.fielding.errors
-            oppo_runs = result["homeScore"]
-            oppo_hits = boxscore.teams.home.team_stats.batting.hits
-            oppo_errors = boxscore.teams.home.team_stats.fielding.errors
-            oppo_team = home_team
+        try:
+            get_play_by_play= mlbapi.get_play_by_play(game_pk)
+            most_recent_play = get_play_by_play["allPlays"][-1]
+            result = most_recent_play["result"]
+            boxscore = mlbapi.boxscore(game_pk)
+            people = ["", "", " and Tom Paciorek",
+                    " and 'Wimpy'", " and DJ"]
+            pick = random.choice(people)
+            sayings = "This is Hawk Harrelson with Stoney" + pick
+            if home_game == False:
+                sox_runs = result["awayScore"]
+                sox_hits = boxscore.teams.away.team_stats.batting.hits
+                sox_errors = boxscore.teams.away.team_stats.fielding.errors
+                oppo_runs = result["homeScore"]
+                oppo_hits = boxscore.teams.home.team_stats.batting.hits
+                oppo_errors = boxscore.teams.home.team_stats.fielding.errors
+                oppo_team = home_team
 
-        else:
-            sox_runs = result["homeScore"]
-            sox_hits = boxscore.teams.home.team_stats.batting.hits
-            sox_errors = boxscore.teams.home.team_stats.fielding.errors
-            oppo_runs = result["awayScore"]
-            oppo_hits = boxscore.teams.away.team_stats.batting.hits
-            oppo_errors = boxscore.teams.away.team_stats.fielding.errors
-            oppo_team = away_team
-        if sox_runs > oppo_runs:
-            sox_win = True
-        else: sox_win = False 
-        sox_h = "hits"
-        sox_r = "runs"
-        sox_e = "errors"
-        oppo_h = "hits"
-        oppo_r = "runs"
-        oppo_e = "errors"
-        if sox_runs == 1:
-            sox_r = "run"
-        if sox_hits == 1:
-            sox_h = "hit"
-        if sox_errors == 1:
-            sox_e = "error"
-        if oppo_runs == 1:
-            oppo_r = "run"
-        if oppo_hits == 1:
-            oppo_h = "hit"
-        if oppo_errors == 1:
-            oppo_e = "error"
-        if sox_win:
-            openers = ["#WhiteSox win!", "This game is ovah!", "Sox win!",
-                       "Sox win! Hell yes!"]
-            opener = random.choice(openers)
+            else:
+                sox_runs = result["homeScore"]
+                sox_hits = boxscore.teams.home.team_stats.batting.hits
+                sox_errors = boxscore.teams.home.team_stats.fielding.errors
+                oppo_runs = result["awayScore"]
+                oppo_hits = boxscore.teams.away.team_stats.batting.hits
+                oppo_errors = boxscore.teams.away.team_stats.fielding.errors
+                oppo_team = away_team
+            if sox_runs > oppo_runs:
+                sox_win = True
+            else: sox_win = False 
+            sox_h = "hits"
+            sox_r = "runs"
+            sox_e = "errors"
+            oppo_h = "hits"
+            oppo_r = "runs"
+            oppo_e = "errors"
+            if sox_runs == 1:
+                sox_r = "run"
+            if sox_hits == 1:
+                sox_h = "hit"
+            if sox_errors == 1:
+                sox_e = "error"
+            if oppo_runs == 1:
+                oppo_r = "run"
+            if oppo_hits == 1:
+                oppo_h = "hit"
+            if oppo_errors == 1:
+                oppo_e = "error"
+            if sox_win:
+                openers = ["#WhiteSox win!", "This game is ovah!", "Sox win!",
+                        "Sox win! Hell yes!"]
+                opener = random.choice(openers)
 
-        else:
-            openers = ["(30 seconds of silence)",
-                       "Sox lose today."]
-            opener = random.choice(openers)
+            else:
+                openers = ["(30 seconds of silence)",
+                        "Sox lose today."]
+                opener = random.choice(openers)
 
-        my_status = """{opner} The score: The #WhiteSox {sox_runs} and the {oppo_team} {oppo_runs}. Your totals:\nFor the Sox. {sox_runs} {sox_r}, {sox_hits} {sox_h} and {sox_errors} {sox_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}. Goodnight."""
-        # print(my_status)
-        api.update_status(status=my_status)
-        time.sleep(90)
-
-        break
+            my_status = """{opner} The score: The #WhiteSox {sox_runs} and the {oppo_team} {oppo_runs}. Your totals:\nFor the Sox. {sox_runs} {sox_r}, {sox_hits} {sox_h} and {sox_errors} {sox_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}. Goodnight."""
+            # print(my_status)
+            api.update_status(status=my_status)
+            time.sleep(30)
+            
+        except Exception as e:
+            q = (str(datetime.now()))
+            f = open('hawklog.txt', 'a')
+            f.write('An exceptional Hawkbot thing happened - {}'.format(e))
+            f.write(q)
+            f.close()
+            time.sleep(30)
+    break
 
     elif game_status == "In Progress":
         try:
