@@ -162,6 +162,7 @@ while(True):
             # print(my_status)
             api.update_status(status=my_status)
             time.sleep(30)
+            break
             
         except Exception as e:
             q = (str(datetime.now()))
@@ -170,7 +171,7 @@ while(True):
             f.write(q)
             f.close()
             time.sleep(30)
-    break
+    
 
     elif game_status == "In Progress":
         try:
@@ -181,11 +182,11 @@ while(True):
             if home_game == False and this_half == "top":
                 atbat_string = get_play_description(most_recent_play, atbat_string)
                 # atbat_string = most_recent_play["result"]["description"] 
-                # print(atbat_string)
+                print(atbat_string)
 
             elif home_game == True and this_half == "bottom":
                 atbat_string = get_play_description(most_recent_play, atbat_string)
-                # print(atbat_string)
+                print(atbat_string)
 
                 # atbat_string = most_recent_play["result"]["description"] 
             elif home_game == True and this_half == "top":
