@@ -149,7 +149,7 @@ while(True):
             if oppo_errors == 1:
                 oppo_e = "error"
             if sox_win:
-                openers = ["#WhiteSox win!", "This game is ovah!", "Sox win!",
+                openers = ["Sox win!", "This game is ovah!", "Sox win!",
                         "Sox win! Hell yes!"]
                 opener = random.choice(openers)
 
@@ -158,8 +158,8 @@ while(True):
                         "Sox lose today."]
                 opener = random.choice(openers)
 
-            my_status = """{opner} The score: The #WhiteSox {sox_runs} and the {oppo_team} {oppo_runs}. Your totals:\nFor the Sox. {sox_runs} {sox_r}, {sox_hits} {sox_h} and {sox_errors} {sox_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}. Goodnight."""
-            # print(my_status)
+            my_status = """{opener} The score: The #WhiteSox {sox_runs} and the {oppo_team} {oppo_runs}. Your totals:\nFor the Sox. {sox_runs} {sox_r}, {sox_hits} {sox_h} and {sox_errors} {sox_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}. Goodnight."""
+            print(my_status)
             api.update_status(status=my_status)
             time.sleep(30)
             break
@@ -167,7 +167,7 @@ while(True):
         except Exception as e:
             q = (str(datetime.now()))
             f = open('hawklog.txt', 'a')
-            f.write('An exceptional Hawkbot thing happened - {}'.format(e))
+            f.write('Ending - An exceptional Hawkbot thing happened - {}'.format(e))
             f.write(q)
             f.close()
             time.sleep(30)
@@ -220,7 +220,7 @@ while(True):
                                    "Hit hard! Stretch! Grand slam! MERCY!!!...\n"]
                     homer_call = random.choice(homer_calls)
                     if home_game == True:
-                        closer = "\nComiskey is going wild!\n#WhiteSox @WhiteSox"
+                        closer = "\nComiskey is going wild!\n#WhiteSox"
                     else:
                         closer = "\n#WhiteSox @WhiteSox"
                     my_status = homer_call + atbat_string + closer
@@ -235,7 +235,7 @@ while(True):
                     will_it_run = random.randint(0, 246)
                     if will_it_run < 6:
                         api.update_status(status=my_status)
-                        # print(my_status)
+                        print(my_status)
                         happened = atbat_string
                         time.sleep(27)
 
@@ -248,6 +248,7 @@ while(True):
 
                 else:
                     happened = atbat_string
+                    print(happened)
                     # if this_inning == 4 and stats.away_team == "White Sox" and this_half == "top":
                     #     harry_news(stats.home_team, stats.home_team_runs,
                     #                stats.away_team, stats.away_team_runs)
