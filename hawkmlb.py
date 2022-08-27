@@ -64,7 +64,7 @@ def harry_news(a, b, c, d):
                 retweet_news(a, b, c, d, retweet_link)
         except tweepy.TweepError as e:
             f = open('log.txt', 'a')
-            f.write('An exceptional Hawkbot thing happened - {}'.format(e))
+            f.write('An exceptional Hawkbot thing happened - {}\n'.format(e))
             f.close()
             time.sleep(9)
             continue
@@ -155,20 +155,22 @@ while(True):
 
             else:
                 openers = ["(30 seconds of silence)",
-                        "Sox lose today."]
+                        "Sox lose."]
                 opener = random.choice(openers)
 
-            my_status = """{opener} The score: The #WhiteSox {sox_runs} and the {oppo_team} {oppo_runs}. Your totals:\nFor the Sox. {sox_runs} {sox_r}, {sox_hits} {sox_h} and {sox_errors} {sox_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}. Goodnight."""
+            my_status = """{opener} The score: The #WhiteSox {sox_runs} and the {oppo_team} {oppo_runs}. Your totals:\nFor the Sox. {sox_runs} {sox_r}, {sox_hits} {sox_h} and {sox_errors} {sox_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}."""
             print(my_status)
             api.update_status(status=my_status)
             time.sleep(30)
             break
             
         except Exception as e:
-            q = (str(datetime.now()))
+            curTime = (str(datetime.now()))
             f = open('hawklog.txt', 'a')
             f.write('Ending - An exceptional Hawkbot thing happened - {}'.format(e))
-            f.write(q)
+            f.write(curTime)
+            if my_status:
+                f.write(my_status)
             f.close()
             time.sleep(30)
     
