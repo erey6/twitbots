@@ -158,7 +158,7 @@ while(True):
                         "Sox lose."]
                 opener = random.choice(openers)
 
-            my_status = """{opener} The score: The #WhiteSox {sox_runs} and the {oppo_team} {oppo_runs}. Your totals:\nFor the Sox. {sox_runs} {sox_r}, {sox_hits} {sox_h} and {sox_errors} {sox_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}."""
+            my_status = f"{opener} The score: The #WhiteSox {sox_runs} and the {oppo_team} {oppo_runs}. Your totals:\nFor the Sox. {sox_runs} {sox_r}, {sox_hits} {sox_h} and {sox_errors} {sox_e}.\nFor the {oppo_team}, {oppo_runs} {oppo_r}, {oppo_hits} {oppo_h} and {oppo_errors} {oppo_e}. \n{sayings}."
             print(my_status)
             api.update_status(status=my_status)
             time.sleep(30)
